@@ -1,0 +1,2 @@
+npx create-next-app@latest frontend --typescript --tailwind --eslint
+cd frontend
