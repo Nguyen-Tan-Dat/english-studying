@@ -88,3 +88,13 @@ npm run db:grant-super-admin -- admin@example.com
 ```
 
 The account must already exist in the `users` table. See `RBAC_ADMIN_API.md` for API details and request examples.
+
+## Users authentication migration
+
+If the database already existed before the users authentication APIs were added, apply the indexes once:
+
+```powershell
+psql -U postgres -d english_learning -f "src/database/migrations/001_users_auth_indexes.sql"
+```
+
+The migration enforces case-insensitive uniqueness for email and username and adds an index for password-reset token queries.

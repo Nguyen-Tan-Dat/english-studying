@@ -113,3 +113,25 @@ src/middlewares/permission.middleware.ts
 ```
 
 Permission names use `<table>.<action>`. See `RBAC_ADMIN_API.md` for setup and endpoint examples.
+
+## Users authentication module
+
+Public account endpoints are mounted at `/api/users`:
+
+- `POST /register`
+- `POST /login`
+- `POST /forgot-password`
+- `POST /reset-password`
+
+The route layer delegates to `UsersController`, while account rules, password hashing, JWT issuance, reset-token generation, and database transactions remain in `AuthService`. Reset tokens are random single-use values; PostgreSQL stores only their SHA-256 hashes.
+
+## Automated tests
+
+The project includes Vitest + Supertest automated testing with a dedicated PostgreSQL database. See `AUTOMATED_TESTING.md` for setup and commands.
+
+```text
+npm run test:unit
+npm run test:integration
+npm test
+npm run test:coverage
+```
