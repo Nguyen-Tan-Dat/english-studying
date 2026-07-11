@@ -1,0 +1,291 @@
+================================================================================
+REVIEW — Giải thích các file trong dự án "english-studying"
+================================================================================
+Monorepo học tiếng Anh: frontend Next.js + backend Express + PostgreSQL.
+Luồng chính: Route → Middleware → Controller → Service → Database.
+
+================================================================================
+1. THƯ MỤC GỐC (english-studying/)
+================================================================================
+
+README.md
+  Tài liệu tổng quan: công nghệ, chức năng, bảng API, quick start.
+
+.gitignore
+  Quy tắc bỏ qua file khi commit (node_modules, .env, dist, .next, coverage...).
+
+.idea/
+  Cấu hình JetBrains IDE (WebStorm/IntelliJ): database connection, workspace.
+  Không ảnh hưởng runtime — có thể bỏ qua khi review code.
+
+================================================================================
+2. BACKEND (backend/)
+================================================================================
+
+--- Cấu hình & tài liệu ---
+
+package.json          Danh sách dependency và npm scripts (dev, build, test, db...).
+package-lock.json     Khóa phiên bản dependency để cài đặt reproducible.
+README.md             Hướng dẫn cấu trúc, setup, chạy, test backend.
+note.cmd              Ghi chú cá nhân quá trình setup backend (lệnh npm, lỗi thường gặp).
+
+.env.example          Mẫu biến môi trường (PORT, DATABASE_URL, JWT, bcrypt...).
+.env                  Biến môi trường thật — KHÔNG commit (local only).
+.env.test.example     Mẫu cho database test.
+.env.test             Cấu hình test DB — KHÔNG commit.
+
+.npmrc                Cấu hình npm: registry, tắt fund/audit.
+.eslintrc.json        Quy tắc ESLint cho TypeScript.
+tsconfig.json         Cấu hình TypeScript compile (outDir: dist, strict mode).
+tsconfig.test.json    TypeScript riêng cho thư mục tests/.
+vitest.config.mts     Cấu hình Vitest (test runner, coverage).
+mise.toml             Cấu hình mise (quản lý phiên bản Node/runtime).
+
+--- Entry point ---
+
+src/server.ts
+  Điểm khởi động: kiểm tra PostgreSQL → mở HTTP server → graceful shutdown.
+
+src/app.ts
+  Cấu hình Express: helmet, cors, compression, json parser, mount routes,
+  error handler. Không chứa business logic.
+
+--- Config ---
+
+src/config/env.ts
+  Đọc và validate biến môi trường từ .env (PORT, JWT, DATABASE_URL...).
+
+src/config/rbac.ts
+  Cấu hình RBAC: tên role super_admin, danh sách bảng tạo permission.
+
+--- Database ---
+
+src/database/db.ts
+  PostgreSQL connection pool + Kysely query builder instance.
+
+src/database/types.ts
+  TypeScript types cho schema database (bảng, cột).
+
+src/database/schema/tables.sql
+  DDL tạo toàn bộ bảng (users, roles, permissions, vocabularies, SRS...).
+
+src/database/migrations/001_users_auth_indexes.sql
+  Migration bổ sung: unique index email/username, index reset token.
+
+src/database/check-connection.ts
+  Script kiểm tra kết nối DB (npm run db:check).
+
+src/database/seed-rbac.ts
+  Entry script seed roles & permissions (npm run db:seed:rbac).
+
+src/database/rbac-seeder.ts
+  Logic seed 56 permissions + role super_admin.
+
+src/database/grant-super-admin.ts
+  Gán role super_admin cho user theo email/username.
+
+--- Routes (chỉ định nghĩa URL, gắn middleware + controller) ---
+
+src/routes/index.ts
+  Gom router: /api/auth, /api/users, /api/admin, /api/vocabularies.
+
+src/routes/health.routes.ts     GET /health
+src/routes/auth.routes.ts       POST /api/auth/login (legacy)
+src/routes/users.routes.ts      register, login, forgot/reset password
+src/routes/admin.routes.ts      CRUD roles & permissions
+src/routes/vocabulary.routes.ts CRUD từ vựng + review SRS
+
+--- Controllers (nhận request, validate input, trả HTTP response) ---
+
+src/controllers/health.controller.ts
+src/controllers/auth.controller.ts
+src/controllers/users.controller.ts
+src/controllers/admin-role.controller.ts
+src/controllers/vocabulary.controller.ts
+
+--- Services (business logic, gọi database) ---
+
+src/services/auth.service.ts
+  Đăng ký, login, hash password/PIN (bcrypt), JWT, forgot/reset password.
+
+src/services/authorization.service.ts
+  Kiểm tra user có permission hay không (dùng cho RBAC).
+
+src/services/admin-role.service.ts
+  CRUD role, gán permission, bảo vệ super_admin.
+
+src/services/vocabulary.service.ts
+  Quản lý từ vựng user, gọi SRS khi review.
+
+src/services/srs.service.ts
+  Thuật toán Spaced Repetition thuần (tính interval, ease factor, ngày ôn).
+
+src/services/health.service.ts
+  Kiểm tra trạng thái API + PostgreSQL.
+
+--- Middlewares ---
+
+src/middlewares/auth.middleware.ts
+  Xác thực JWT Bearer token, gắn user vào request.
+
+src/middlewares/permission.middleware.ts
+  Kiểm tra permission RBAC trước khi vào admin routes.
+
+src/middlewares/async-handler.middleware.ts
+  Bắt lỗi async trong controller, chuyển sang error handler.
+
+src/middlewares/error.middleware.ts
+  Format lỗi API thống nhất (status code, message).
+
+src/middlewares/not-found.middleware.ts
+  Trả 404 cho route không tồn tại.
+
+--- Utils & Types ---
+
+src/utils/api-error.ts
+  Class lỗi tùy chỉnh (BadRequest, Unauthorized, Forbidden...).
+
+src/utils/request-validation.ts
+  Helper validate body/query params.
+
+src/types/express.d.ts
+  Mở rộng Express Request (thêm user, permissions...).
+
+--- Tests ---
+
+tests/unit/srs.service.test.ts
+  Unit test thuật toán SRS (không cần database).
+
+tests/integration/api.integration.test.ts
+  Integration test toàn bộ API (auth, RBAC, reset password...).
+
+tests/helpers/database.ts       Helper kết nối/reset DB trong test.
+tests/helpers/users.ts          Helper tạo user test.
+tests/scripts/reset-test-database.ts  Drop + tạo lại schema test DB.
+tests/setup/environment.ts      Load .env.test trước khi chạy test.
+
+================================================================================
+3. FRONTEND (frontend/)
+================================================================================
+
+--- Cấu hình & tài liệu ---
+
+package.json          Dependency và scripts (dev port 3001, build, lint).
+package-lock.json     Khóa phiên bản npm.
+README.md             Hướng dẫn cấu trúc, setup, chạy frontend.
+note.cmd              Ghi chú setup frontend (create-next-app, shadcn...).
+
+.env.local.example    Mẫu: NEXT_PUBLIC_API_URL=http://localhost:3000
+.npmrc                Cấu hình npm registry.
+
+next.config.ts        Cấu hình Next.js.
+tsconfig.json         TypeScript + path alias (@/ → root frontend).
+next-env.d.ts         Type definitions do Next.js tự sinh — không sửa tay.
+eslint.config.mjs     Quy tắc ESLint (flat config).
+postcss.config.mjs    PostCSS cho Tailwind CSS 4.
+components.json       Cấu hình shadcn/ui (style, alias, paths).
+
+AGENTS.md / CLAUDE.md Rule hướng dẫn AI agent khi code trong frontend.
+                      Không ảnh hưởng ứng dụng.
+
+--- App Router (pages) ---
+
+app/layout.tsx        Layout gốc: HTML, font, globals.css, bọc Providers.
+app/providers.tsx     Bọc AuthProvider cho toàn app.
+app/page.tsx          Trang chủ.
+app/login/page.tsx    Form đăng nhập.
+app/register/page.tsx Form đăng ký.
+app/forgot-password/page.tsx  Form quên mật khẩu.
+app/reset-password/page.tsx   Form đặt lại mật khẩu (nhận token từ URL).
+app/admin/page.tsx    Trang quản trị RBAC (roles & permissions).
+app/not-found.tsx     Trang 404 tùy chỉnh.
+app/globals.css       Tailwind + biến CSS theme toàn app.
+app/favicon.ico       Icon tab trình duyệt.
+
+--- Components ---
+
+components/app-header.tsx
+  Header navigation (logo, link login/register/logout, admin).
+
+components/protected-page.tsx
+  Wrapper: redirect về /login nếu chưa đăng nhập.
+
+components/password-input.tsx
+  Input mật khẩu có nút show/hide.
+
+components/auth/auth-shell.tsx
+  Layout chung cho các trang auth (card, title, link chuyển trang).
+
+components/auth/reset-password-form.tsx
+  Form đặt lại mật khẩu, đọc token từ query string.
+
+components/admin/role-manager.tsx
+  UI CRUD roles: list, create, edit, gán permissions.
+
+components/ui/*
+  Component UI tái sử dụng do shadcn/ui tạo:
+  alert, badge, button, card, input, label, textarea.
+
+--- Logic & State ---
+
+contexts/auth-context.tsx
+  React Context quản lý session JWT:
+  - Lưu/đọc localStorage
+  - login(), logout()
+  - Tự xóa session khi hết hạn hoặc nhận 401
+
+lib/api.ts
+  HTTP client gọi backend (fetch + Bearer token + xử lý lỗi).
+
+lib/types.ts
+  TypeScript types cho API response (User, Role, AuthSession...).
+
+lib/utils.ts
+  Helper cn() gộp class Tailwind (clsx + tailwind-merge).
+
+--- Static assets ---
+
+public/image/404-lost.gif   Ảnh GIF cho trang 404.
+public/*.svg                Icon mặc định Next.js/Vercel.
+
+================================================================================
+4. LUỒNG HOẠT ĐỘNG CHÍNH
+================================================================================
+
+Đăng nhập:
+  frontend/login → lib/api.ts → POST /api/users/login
+  → auth.service.ts verify bcrypt → trả JWT
+  → auth-context lưu localStorage
+
+Admin RBAC:
+  frontend/admin → GET/POST /api/admin/*
+  → auth.middleware (JWT) → permission.middleware (RBAC)
+  → admin-role.service.ts → PostgreSQL
+
+Ôn từ vựng SRS:
+  POST /api/vocabularies/:id/review
+  → vocabulary.service.ts → srs.service.ts tính lịch ôn
+  → cập nhật user_vocabularies + ghi review_logs
+
+================================================================================
+5. FILE KHÔNG COMMIT (gitignore)
+================================================================================
+
+node_modules/     Dependency đã cài
+dist/             Backend build output
+.next/            Frontend build cache
+.env, .env.test   Secret và cấu hình local
+coverage/         Báo cáo test coverage
+*.tsbuildinfo     Cache TypeScript
+
+================================================================================
+6. PORT MẶC ĐỊNH
+================================================================================
+
+Backend:  http://localhost:3000
+Frontend: http://localhost:3001
+Health:   http://localhost:3000/health
+
+================================================================================
+KẾT THÚC
+================================================================================
