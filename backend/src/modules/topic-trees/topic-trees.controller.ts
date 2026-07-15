@@ -1,0 +1,16 @@
+import type {Request,Response} from 'express'; import {topicTreesService as s} from './topic-trees.service.js'; import {assertIfMatch,etag} from '../../shared/middlewares/etag.js';
+export const list=(req:Request,res:Response)=>res.json(s.list(req.user!.id,req.query));
+export const create=(req:Request,res:Response)=>{const v=s.create(req.user!.id,req.body);res.setHeader('ETag',etag((v as any).version)).status(201).json(v)};
+export const get=(req:Request,res:Response)=>{const v=s.get(req.user!.id,req.params.treeId);res.setHeader('ETag',etag((v as any).version)).json(v)};
+export const update=(req:Request,res:Response)=>{assertIfMatch(req,s.version(req.params.treeId));const v=s.update(req.user!.id,req.params.treeId,req.body);res.setHeader('ETag',etag((v as any).version)).json(v)};
+export const remove=(req:Request,res:Response)=>{assertIfMatch(req,s.version(req.params.treeId));s.delete(req.user!.id,req.params.treeId);res.status(204).send()};
+export const workspace=(req:Request,res:Response)=>res.json(s.workspace(req.user!.id,req.params.treeId));
+export const listNodes=(req:Request,res:Response)=>res.json(s.listNodes(req.user!.id,req.params.treeId,req.query));
+export const createNode=(req:Request,res:Response)=>{const v=s.createNode(req.user!.id,req.params.treeId,req.body);res.setHeader('ETag',etag((v as any).version)).status(201).json(v)};
+export const search=(req:Request,res:Response)=>res.json(s.search(req.user!.id,req.params.treeId,req.query));
+export const getNode=(req:Request,res:Response)=>{const v=s.getNode(req.user!.id,req.params.nodeId);res.setHeader('ETag',etag((v as any).version)).json(v)};
+export const updateNode=(req:Request,res:Response)=>{assertIfMatch(req,s.nodeVersion(req.params.nodeId));const v=s.updateNode(req.user!.id,req.params.nodeId,req.body);res.setHeader('ETag',etag((v as any).version)).json(v)};
+export const deleteNode=(req:Request,res:Response)=>{assertIfMatch(req,s.nodeVersion(req.params.nodeId));s.deleteNode(req.user!.id,req.params.nodeId);res.status(204).send()};
+export const children=(req:Request,res:Response)=>res.json(s.children(req.user!.id,req.params.nodeId,req.query));
+export const previewMove=(req:Request,res:Response)=>res.json(s.previewMove(req.user!.id,req.params.nodeId,req.body));
+export const move=(req:Request,res:Response)=>{assertIfMatch(req,s.nodeVersion(req.params.nodeId));const v=s.move(req.user!.id,req.params.nodeId,req.body);res.setHeader('ETag',etag((v as any).version)).json(v)};

@@ -1,0 +1,1 @@
+import{api}from'../client';import type{AdminDashboard}from'../types';export const adminApi={dashboard:()=>api.get<AdminDashboard>('/admin/dashboard').then(r=>r.data),health:()=>api.get('/admin/content-health').then(r=>r.data),audit:()=>api.get('/admin/audit-logs').then(r=>r.data)};

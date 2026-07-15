@@ -1,102 +1,58 @@
-# Frontend
+# LexiGo Frontend
 
-Web app Next.js 16 kết nối backend Express/PostgreSQL.
+Frontend độc lập với backend. Mọi lệnh trong tài liệu này chạy trực tiếp tại thư mục `frontend`.
 
-## Cấu trúc dự án
+## Cài đặt
 
-```
-frontend/
-├── app/                          # App Router (Next.js)
-│   ├── page.tsx                  # Trang chủ
-│   ├── layout.tsx                # Root layout
-│   ├── providers.tsx             # Context providers
-│   ├── login/                    # Đăng nhập
-│   ├── register/                 # Đăng ký
-│   ├── forgot-password/          # Quên mật khẩu
-│   ├── reset-password/           # Đặt lại mật khẩu
-│   ├── admin/                    # Quản lý RBAC
-│   └── not-found.tsx             # Trang 404
-├── components/
-│   ├── admin/                    # Admin UI (role manager)
-│   ├── auth/                     # Auth shell, forms
-│   ├── ui/                       # UI components (button, input, card...)
-│   ├── app-header.tsx
-│   ├── password-input.tsx
-│   └── protected-page.tsx
-├── contexts/
-│   └── auth-context.tsx          # JWT session state
-├── lib/
-│   ├── api.ts                    # HTTP client gọi backend
-│   ├── types.ts                  # TypeScript types
-│   └── utils.ts
-├── public/
-├── .env.local.example
-└── package.json
-```
-
-## Setup
-
-### 1. Cấu hình môi trường
-
-```powershell
-Copy-Item .env.local.example .env.local
-```
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
-```
-
-Backend chạy cổng `3000`; frontend mặc định cổng `3001`.
-
-Trong `backend/.env`, nên đặt:
-
-```env
-PASSWORD_RESET_URL=http://localhost:3001/reset-password
-RETURN_PASSWORD_RESET_TOKEN=true
-```
-
-### 2. Cài đặt dependencies
-
-```powershell
+```bat
+copy .env.example .env
 npm install
-```
-
-Yêu cầu Node.js 22+.
-
-## Chạy
-
-```powershell
-# Development
 npm run dev
+```
 
-# Production
+Frontend mặc định chạy tại `http://localhost:5173` và proxy `/api` sang backend tại `http://localhost:4010`.
+
+## Lệnh chính
+
+```bash
+npm run dev
 npm run build
-npm start
+npm run preview
+npm run generate:api
+npm run typecheck
+npm run lint
+npm test
+npm run test:coverage
+npm run check
 ```
 
-Mở http://localhost:3001
+## API contract độc lập
 
-## Scripts
+Frontend không còn phụ thuộc npm workspace `@lexigo/api-contracts`.
 
-| Lệnh | Mô tả |
-|------|-------|
-| `npm run dev` | Development server (port 3001) |
-| `npm run build` | Build production |
-| `npm start` | Chạy bản build |
-| `npm run typecheck` | Kiểm tra TypeScript |
-| `npm run lint` | ESLint |
+- Contract nguồn: `openapi/openapi.yaml`
+- Type tự sinh: `src/api/generated/api-types.ts`
+- Lệnh sinh type: `npm run generate:api`
 
-## Chuẩn bị tài khoản admin
+Khi backend thay đổi OpenAPI, thay file `openapi/openapi.yaml`, sau đó chạy lại `npm run generate:api`.
 
-Ở thư mục backend:
+## Tệp không chỉnh sửa thủ công
 
-```powershell
-npm run db:seed:rbac
-npm run db:grant-super-admin -- admin@example.com
+- `node_modules/`
+- `package-lock.json` — npm tự tạo/cập nhật
+- `dist/`
+- `coverage/`
+- `*.tsbuildinfo`
+- `src/api/generated/api-types.ts`
+- `.env`
+
+## Docker
+
+Dockerfile sử dụng chính thư mục `frontend` làm build context:
+
+```bash
+docker build -t lexigo-frontend .
+docker run --rm -p 8080:80 -e BACKEND_UPSTREAM=host.docker.internal:4010 lexigo-frontend
 ```
 
-Đăng nhập frontend bằng tài khoản được gán `super_admin`, sau đó mở `/admin`.
-
-## Bảo mật
-
-Frontend lưu access token trong `localStorage` vì backend trả JWT trực tiếp. Với production, nên nâng cấp sang cookie `HttpOnly`, `Secure`, `SameSite` và CSRF protection.
+Trong Docker Compose, backend nên có service name `backend`; giá trị mặc định là `BACKEND_UPSTREAM=backend:4010`.

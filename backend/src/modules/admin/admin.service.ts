@@ -1,0 +1,1 @@
+import{store}from'../../infrastructure/store/memory.store.js';export class AdminService{dashboard(){return store.adminDashboard()}trees(u:string,q:any){return store.listTrees(u,q)}create(u:string,b:any){return store.createTree(u,b,'DEFAULT')}health(){return store.contentHealth()}audit(q:any){return store.listAudit(q)}}export const adminService=new AdminService();

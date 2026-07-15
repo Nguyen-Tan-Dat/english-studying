@@ -1,0 +1,1 @@
+import request from'supertest';import{app}from'../../src/app.js';export async function login(email='learner@lexigo.local',password='Demo123!'){const response=await request(app).post('/api/v1/auth/login').send({email,password});return{token:response.body.access_token,cookies:response.headers['set-cookie']}};

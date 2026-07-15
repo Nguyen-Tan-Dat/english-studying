@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { authRateLimiter } from '../../shared/middlewares/rate-limiter.js';
+import { asyncHandler } from '../../shared/middlewares/async-handler.js';
+import { validate } from '../../shared/middlewares/validate.js';
+import { loginSchema, registerSchema } from './auth.validator.js';
+import * as controller from './auth.controller.js';
+export const authRouter = Router();
+authRouter.use(authRateLimiter as any);
+authRouter.post('/register', validate({body:registerSchema}), asyncHandler(controller.register));
+authRouter.post('/login', validate({body:loginSchema}), asyncHandler(controller.login));
+authRouter.post('/refresh', asyncHandler(controller.refresh));
+authRouter.post('/logout', asyncHandler(controller.logout));

@@ -1,0 +1,1 @@
+-- Roles are represented by users.roles and collaborator.role in the MVP schema.

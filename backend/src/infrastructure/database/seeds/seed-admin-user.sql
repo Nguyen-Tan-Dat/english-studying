@@ -1,0 +1,1 @@
+-- Use backend runtime seed or create a bcrypt hash through the application registration flow.

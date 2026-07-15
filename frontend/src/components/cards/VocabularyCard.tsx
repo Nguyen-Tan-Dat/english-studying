@@ -1,0 +1,1 @@
+import type{Vocabulary}from'../../api/types';export function VocabularyCard({item}:{item:Vocabulary}){return <article className="vocab-card"><div><h3>{item.english}</h3><small>{item.pronunciation}</small></div><strong>{item.vietnamese}</strong><p>{item.example}</p></article>}

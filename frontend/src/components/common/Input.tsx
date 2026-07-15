@@ -1,0 +1,1 @@
+import type{InputHTMLAttributes}from'react';export function Input({label,error,...props}:InputHTMLAttributes<HTMLInputElement>&{label?:string;error?:string}){return <label className="field">{label&&<span>{label}</span>}<input className="input" {...props}/>{error&&<small className="field-error">{error}</small>}</label>}

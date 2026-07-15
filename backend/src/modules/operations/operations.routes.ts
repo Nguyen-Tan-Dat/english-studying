@@ -1,0 +1,1 @@
+import{Router}from'express';import{requireAuth}from'../../shared/middlewares/auth.guard.js';import{asyncHandler}from'../../shared/middlewares/async-handler.js';import{get}from'./operations.controller.js';export const operationsRouter=Router();operationsRouter.get('/operations/:operationId',requireAuth,asyncHandler(get));

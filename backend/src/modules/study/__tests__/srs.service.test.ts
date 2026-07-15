@@ -1,0 +1,1 @@
+import{describe,expect,it}from'vitest';function nextInterval(previous:number,quality:number){if(quality<3)return 1;return Math.max(1,Math.round(previous*(1.3+quality/10)))}describe('SRS baseline',()=>{it('resets failed cards',()=>expect(nextInterval(12,2)).toBe(1));it('expands successful interval',()=>expect(nextInterval(10,5)).toBe(18))});

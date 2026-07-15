@@ -1,0 +1,1 @@
+import{api}from'../client';import type{User,LearnerStats}from'../types';export const usersApi={me:()=>api.get<User>('/me').then(r=>r.data),stats:()=>api.get<LearnerStats>('/me/stats').then(r=>r.data)};

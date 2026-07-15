@@ -1,0 +1,12 @@
+{
+  "type": "https://lexigo.local/problems/validation",
+  "title": "Validation failed",
+  "status": 422,
+  "code": "VALIDATION_ERROR",
+  "errors": [
+    {
+      "field": "display_name",
+      "message": "Required"
+    }
+  ]
+}

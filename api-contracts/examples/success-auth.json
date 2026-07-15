@@ -1,0 +1,8 @@
+{
+  "access_token": "<jwt>",
+  "token_type": "Bearer",
+  "expires_in": 900,
+  "user": {
+    "email": "learner@lexigo.local"
+  }
+}

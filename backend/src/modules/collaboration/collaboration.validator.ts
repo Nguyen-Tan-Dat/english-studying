@@ -1,0 +1,1 @@
+import{z}from'zod';export const inviteSchema=z.object({email:z.string().email(),role:z.enum(['EDITOR','VIEWER']),message:z.string().max(500).nullable().optional()});export const roleSchema=z.object({role:z.enum(['EDITOR','VIEWER'])});

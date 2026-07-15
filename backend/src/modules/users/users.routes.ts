@@ -1,0 +1,2 @@
+import {Router} from 'express'; import {requireAuth} from '../../shared/middlewares/auth.guard.js'; import {validate} from '../../shared/middlewares/validate.js'; import {asyncHandler} from '../../shared/middlewares/async-handler.js'; import {updateProfileSchema} from './users.validator.js'; import * as c from './users.controller.js';
+export const usersRouter=Router(); usersRouter.use(requireAuth); usersRouter.get('/',asyncHandler(c.getMe)); usersRouter.patch('/',validate({body:updateProfileSchema}),asyncHandler(c.updateMe)); usersRouter.get('/stats',asyncHandler(c.stats));

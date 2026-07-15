@@ -1,0 +1,3 @@
+import type {components} from './generated/api-types';
+export type User=components['schemas']['User'];export type LearnerStats=components['schemas']['LearnerStats'];export type TopicTree=components['schemas']['TopicTree'];export type TopicNode=components['schemas']['TopicNode'];export type TreeWorkspace=components['schemas']['TreeWorkspaceBootstrap'];export type Vocabulary=components['schemas']['VocabularyEntry'];export type PublicLibraryItem=components['schemas']['PublicLibraryItem'];export type StudySession=components['schemas']['StudySession'];export type AdminDashboard=components['schemas']['AdminDashboard'];
+export type Page<T>={items:T[];meta:{page:number;page_size:number;total_items:number;total_pages:number}};
