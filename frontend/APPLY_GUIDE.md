@@ -1,30 +1,36 @@
-# Áp dụng cấu hình vào frontend hiện tại
+# Áp dụng frontend v0.3.0
 
-1. Sao lưu thư mục frontend hiện tại.
-2. Chép đè toàn bộ tệp trong gói cấu hình vào thư mục `frontend`.
-3. Xóa các tệp cũ do TypeScript/Vite tự sinh:
+## Cấu trúc khuyến nghị
 
-```bat
-rmdir /S /Q node_modules
-rmdir /S /Q dist
-rmdir /S /Q coverage
-del /Q package-lock.json
-del /Q *.tsbuildinfo
-del /Q vite.config.js
-del /Q vite.config.d.ts
+```text
+LexiGo/
+├── backend/
+└── frontend/
 ```
 
-4. Bảo đảm `src/api/types.ts` dùng import sau:
-
-```ts
-import type { components } from './generated/api-types';
-```
-
+1. Sao lưu frontend hiện tại.
+2. Chép toàn bộ nội dung gói này vào `frontend`.
+3. Không chép lại `node_modules`, `dist`, `coverage`, `package-lock.json` hay file TypeScript tự sinh.
+4. Đảm bảo backend có `package.json` độc lập.
 5. Chạy:
 
 ```bat
+cd frontend
 copy .env.example .env
 npm install
+npm run demo
+```
+
+Backend ở vị trí khác:
+
+```bat
+set LEXIGO_BACKEND_DIR=D:\duong-dan\backend
+npm run demo
+```
+
+Kiểm tra đầy đủ:
+
+```bat
+npm run api:coverage
 npm run check
-npm run dev
 ```

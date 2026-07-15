@@ -1,12 +1,15 @@
 {
   "name": "lexigo-frontend",
-  "version": "0.2.0",
-  "description": "LexiGo web application built with React, Vite, TypeScript and Tailwind CSS.",
+  "version": "0.3.0",
+  "description": "LexiGo complete frontend demo with automatic backend startup.",
   "private": true,
   "type": "module",
   "scripts": {
     "postinstall": "npm run generate:api",
     "dev": "npm run generate:api && vite --host 0.0.0.0",
+    "demo": "node scripts/demo.mjs",
+    "demo:frontend": "npm run generate:api && vite --host 0.0.0.0 --open",
+    "demo:check": "node scripts/demo-health.mjs",
     "build": "npm run clean && npm run generate:api && tsc -p tsconfig.app.json && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "generate:api": "openapi-typescript ./openapi/openapi.yaml -o ./src/api/generated/api-types.ts",
@@ -14,12 +17,13 @@
     "test": "vitest run --config vitest.config.mts --maxWorkers=1 --minWorkers=1",
     "test:watch": "vitest --config vitest.config.mts",
     "test:coverage": "vitest run --coverage --config vitest.config.mts",
-    "lint": "eslint \"src/**/*.{ts,tsx}\" \"*.config.{js,ts,mts}\" --max-warnings=0",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" \"*.config.{js,ts,mts}\" \"scripts/**/*.mjs\" --max-warnings=0",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{json,js,ts,mts,md,html}\" \"scripts/**/*.mjs\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,js,ts,mts,md,html}\" \"scripts/**/*.mjs\"",
     "clean": "node scripts/clean.mjs",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build"
+    "check": "npm run api:coverage && npm run typecheck && npm run lint && npm run test && npm run build",
+    "api:coverage": "node scripts/validate-ui-coverage.mjs"
   },
   "engines": {
     "node": ">=20.19.0",

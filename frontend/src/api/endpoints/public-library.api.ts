@@ -1,1 +1,1 @@
-import{api}from'../client';import type{Page,PublicLibraryItem}from'../types';export const libraryApi={list:(params?:Record<string,unknown>)=>api.get<Page<PublicLibraryItem>>('/public-library',{params}).then(r=>r.data),clone:(id:string,display_name?:string)=>api.post(`/public-library/${id}/clone`,{display_name},{headers:{'Idempotency-Key':crypto.randomUUID()}}).then(r=>r.data)};
+export { publishingApi as libraryApi } from './publishing.api';

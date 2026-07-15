@@ -1,0 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
+import { systemApi } from '../../api/endpoints/system.api';
+import { Spinner } from '../../components/common/Spinner';
+import { Badge } from '../../components/common/Badge';
+
+export default function SystemStatus() {
+  const health = useQuery({ queryKey: ['system', 'health'], queryFn: systemApi.health, refetchInterval: 10000 });
+  const policy = useQuery({ queryKey: ['system', 'policy'], queryFn: systemApi.policy });
+  if (health.isLoading || policy.isLoading) return <Spinner />;
+  return <div><div className="page-title"><div><h1>Trạng thái hệ thống</h1><p>Kiểm tra kết nối backend và policy mà frontend đang sử dụng.</p></div><Badge tone={health.data?.status === 'ok' ? 'success' : 'danger'}>{health.data?.status === 'ok' ? 'Backend online' : 'Backend offline'}</Badge></div><div className="settings-grid"><section className="panel"><h2>Kết nối API</h2><dl className="detail-list"><div><dt>API base URL</dt><dd>{import.meta.env.VITE_API_BASE_URL ?? '/api/v1'}</dd></div><div><dt>Phiên bản backend</dt><dd>{health.data?.version ?? '—'}</dd></div><div><dt>Trạng thái</dt><dd>{health.data?.status ?? 'unknown'}</dd></div></dl></section><section className="panel"><h2>Giới hạn cây</h2><dl className="detail-list"><div><dt>Độ sâu tối đa</dt><dd>{policy.data?.tree.max_depth}</dd></div><div><dt>Node tối đa/cây</dt><dd>{policy.data?.tree.max_nodes_per_tree.toLocaleString('vi-VN')}</dd></div><div><dt>Request/phút</dt><dd>{policy.data?.rate_limits.general_per_minute}</dd></div></dl></section><section className="panel"><h2>Import Excel</h2><dl className="detail-list"><div><dt>Kích thước tối đa</dt><dd>{Math.round((policy.data?.imports.max_file_size_bytes ?? 0) / 1024 / 1024)} MB</dd></div><div><dt>Số dòng tối đa</dt><dd>{policy.data?.imports.max_rows.toLocaleString('vi-VN')}</dd></div><div><dt>Định dạng</dt><dd>{policy.data?.imports.allowed_extensions.join(', ')}</dd></div><div><dt>Cột bắt buộc</dt><dd>{policy.data?.imports.required_columns.join(', ')}</dd></div></dl></section><section className="panel"><h2>Boolean Query</h2><dl className="detail-list"><div><dt>Kết quả preview tối đa</dt><dd>{policy.data?.query.max_preview_concepts.toLocaleString('vi-VN')}</dd></div><div><dt>Timeout</dt><dd>{policy.data?.query.timeout_ms} ms</dd></div></dl></section></div></div>;
+}
